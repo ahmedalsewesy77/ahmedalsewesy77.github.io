@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="fg1" gradientUnits="userSpaceOnUse" x1="24" y1="44" x2="42" y2="10">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset=".55" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#7dd3fc"/>
+    </linearGradient>
+    <path id="fpetal" d="M32 5.5 C 41.5 9, 45.5 18, 41 25.5 C 38.4 29.6, 34.2 30.6, 32 30 C 29.8 30.6, 25.6 29.6, 23 25.5 C 18.5 18, 22.5 9, 32 5.5 Z"/>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#eaf3fe"/>
+  <path d="M8 51 q6 -5.5 12 0 t 12 0 t 12 0 t 12 0" fill="none" stroke="#3b82f6" stroke-width="3.4" stroke-linecap="round"/>
+  <g transform="translate(32 26) rotate(-14) translate(-32 -26)" fill="url(#fg1)">
+    <use href="#fpetal"/>
+    <use href="#fpetal" transform="rotate(90 32 27)"/>
+    <use href="#fpetal" transform="rotate(180 32 27)"/>
+    <use href="#fpetal" transform="rotate(270 32 27)"/>
+  </g>
+  <circle cx="32" cy="26" r="3.4" fill="#ffffff"/>
+</svg>

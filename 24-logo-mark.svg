@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="pgA" gradientUnits="userSpaceOnUse" x1="24" y1="44" x2="42" y2="10">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset=".55" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#7dd3fc"/>
+    </linearGradient>
+    <linearGradient id="pgB" gradientUnits="userSpaceOnUse" x1="42" y1="44" x2="22" y2="12">
+      <stop offset="0" stop-color="#172f6e"/>
+      <stop offset=".6" stop-color="#1d4ed8"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="sea" gradientUnits="userSpaceOnUse" x1="8" y1="50" x2="56" y2="60">
+      <stop offset="0" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#93c5fd"/>
+    </linearGradient>
+    <radialGradient id="hl" cx=".35" cy=".3" r=".9">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.6"/>
+    </filter>
+    <path id="petal3" d="M32 5.5 C 41.5 9, 45.5 18, 41 25.5 C 38.4 29.6, 34.2 30.6, 32 30 C 29.8 30.6, 25.6 29.6, 23 25.5 C 18.5 18, 22.5 9, 32 5.5 Z"/>
+  </defs>
+
+  <!-- sea -->
+  <path d="M8 51 q6 -5.5 12 0 t 12 0 t 12 0 t 12 0" fill="none" stroke="url(#sea)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M14 57.5 q5 -4.2 10 0 t 10 0 t 10 0" fill="none" stroke="#93c5fd" stroke-width="2.4" stroke-linecap="round" opacity=".9"/>
+
+  <!-- floating shadow on the water -->
+  <ellipse cx="32" cy="46.5" rx="13" ry="3.2" fill="#1e40af" opacity=".28" filter="url(#soft)"/>
+
+  <!-- four-petal leaf, tilted, 3D -->
+  <g transform="translate(32 27) rotate(-14) scale(1 .94) translate(-32 -27)">
+    <g>
+      <use href="#petal3" fill="url(#pgA)"/>
+      <use href="#petal3" fill="url(#pgB)" transform="rotate(90 32 27)"/>
+      <use href="#petal3" fill="url(#pgA)" transform="rotate(180 32 27)"/>
+      <use href="#petal3" fill="url(#pgB)" transform="rotate(270 32 27)"/>
+      <use href="#petal3" fill="url(#hl)"/>
+      <use href="#petal3" fill="url(#hl)" transform="rotate(90 32 27)" opacity=".7"/>
+      <use href="#petal3" fill="url(#hl)" transform="rotate(180 32 27)" opacity=".45"/>
+      <use href="#petal3" fill="url(#hl)" transform="rotate(270 32 27)" opacity=".7"/>
+    </g>
+    <circle cx="32" cy="27" r="3.1" fill="#f0f9ff"/>
+    <circle cx="31" cy="26" r="1.1" fill="#bfdbfe"/>
+  </g>
+</svg>
