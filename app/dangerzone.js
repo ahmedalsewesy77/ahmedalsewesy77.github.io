@@ -15,8 +15,17 @@
   function hdrs(){
     return {'apikey':KEY,'Authorization':'Bearer '+(tok()||KEY),'Content-Type':'application/json'};
   }
+  function uid(){
+    try{
+      var raw=localStorage.getItem('nim_auth');
+      var j=JSON.parse(raw);
+      return j&&j.user&&j.user.id||null;
+    }catch(e){return null}
+  }
   function myStores(cb){
-    fetch(URL_+'/rest/v1/stores?select=id,name,slug,published&order=created_at',{headers:hdrs()})
+    var u=uid();
+    if(!u)return cb('no session');
+    fetch(URL_+'/rest/v1/stores?select=id,name,slug,published&owner=eq.'+u+'&order=created_at',{headers:hdrs()})
       .then(function(r){return r.json()})
       .then(function(rows){cb(Array.isArray(rows)?null:rows,Array.isArray(rows)?rows:[])})
       .catch(function(e){cb(e)});
