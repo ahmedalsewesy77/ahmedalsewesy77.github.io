@@ -130,7 +130,7 @@ label{display:block;margin:10px 0;font-weight:600;font-size:.92rem}label .in{mar
 @media(max-width:860px){.statg{grid-template-columns:repeat(2,1fr)}}
 /* dashboard contextual tips */
 .dtip{display:flex;gap:10px;align-items:flex-start;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:.9rem}
-.dtip svg{flex-shrink:0;margin-top:1px}
+.dtip svg{flex-shrink:0;margin-top:1px;width:20px;height:20px}
 /* storefront info strip */
 .swhy h2{color:inherit}
 .swhy .fc{background:var(--card,#fff);color:inherit;padding:18px}
