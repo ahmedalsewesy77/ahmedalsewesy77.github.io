@@ -7,7 +7,7 @@
   var PROF={'Accept-Profile':'myschema','Content-Profile':'myschema'};
   function tok(){
     try{
-      var raw=localStorage.getItem('sb-sftwjgbbijjboosoqwyo-auth-token');
+      var raw=localStorage.getItem('nim_auth')||localStorage.getItem('sb-sftwjgbbijjboosoqwyo-auth-token');
       if(!raw)return null;
       var j=JSON.parse(raw);
       return (j&&(j.access_token||(j.currentSession&&j.currentSession.access_token)))||null;
