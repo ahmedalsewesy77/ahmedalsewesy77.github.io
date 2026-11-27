@@ -1,10 +1,9 @@
-/* Nimara merchant danger zone: unpublish or permanently delete the active store.
-   Uses the app's own Supabase session (no secrets here; publishable key only,
-   same as the app bundle). Appears on #/dash/settings. */
+/* Nimara merchant danger zone: unpublish or permanently delete stores you own.
+   Uses the app's own Supabase session (nim_auth) with the publishable key,
+   same as the app bundle. Appears on #/dash/settings. */
 (function(){
   var URL_='https://sftwjgbbijjboosoqwyo.supabase.co';
   var KEY='sb_publishable_lYACMXUQXXJKnvw6BiUcuQ_MUzQsJb_';
-  var PROF={'Accept-Profile':'myschema','Content-Profile':'myschema'};
   function tok(){
     try{
       var raw=localStorage.getItem('nim_auth')||localStorage.getItem('sb-sftwjgbbijjboosoqwyo-auth-token');
@@ -14,29 +13,58 @@
     }catch(e){return null}
   }
   function hdrs(){
-    var h={'apikey':KEY,'Authorization':'Bearer '+(tok()||KEY),'Content-Type':'application/json'};
-    for(var k in PROF)h[k]=PROF[k];
-    return h;
+    return {'apikey':KEY,'Authorization':'Bearer '+(tok()||KEY),'Content-Type':'application/json'};
   }
-  function activeStoreName(){
-    var sels=document.querySelectorAll('select');
-    for(var i=0;i<sels.length;i++){
-      var o=sels[i].selectedOptions;
-      if(o&&o.length&&sels[i].closest('.dside,.dbody,body'))return o[0].textContent.trim();
-    }
-    return null;
-  }
-  function findStore(cb){
-    fetch(URL_+'/rest/v1/stores?select=id,name,slug,published',{headers:hdrs()})
+  function myStores(cb){
+    fetch(URL_+'/rest/v1/stores?select=id,name,slug,published&order=created_at',{headers:hdrs()})
       .then(function(r){return r.json()})
-      .then(function(rows){
-        if(!Array.isArray(rows))return cb(rows);
-        var nm=activeStoreName();
-        var st=null;
-        for(var i=0;i<rows.length;i++)if(rows[i].name===nm){st=rows[i];break}
-        cb(null,st||rows[0],rows);
-      })
+      .then(function(rows){cb(Array.isArray(rows)?null:rows,Array.isArray(rows)?rows:[])})
       .catch(function(e){cb(e)});
+  }
+  function render(card){
+    var list=card.querySelector('#ndz-list');
+    list.innerHTML='...';
+    myStores(function(err,rows){
+      if(err){list.innerHTML='';msg(card,'تعذر تحميل المتاجر');return}
+      if(!rows.length){list.innerHTML='';msg(card,'لا توجد متاجر');return}
+      list.innerHTML='';
+      rows.forEach(function(st){
+        var row=document.createElement('div');
+        row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #fee2e2;flex-wrap:wrap';
+        var nm=document.createElement('span');
+        nm.style.cssText='flex:1;min-width:140px;font-size:13px;color:#450a0a';
+        nm.textContent=st.name+' ('+st.slug+') — '+(st.published?'منشور':'غير منشور');
+        row.appendChild(nm);
+        if(st.published){
+          row.appendChild(btn('إلغاء النشر','#f59e0b','#fffbeb','#92400e',function(ev){
+            act(ev.target,st,'PATCH',{published:false},'تم إلغاء نشر '+st.name);
+          }));
+        }
+        row.appendChild(btn('حذف نهائي','#ef4444','#fef2f2','#b91c1c',function(ev){
+          if(!confirm('حذف "'+st.name+'" نهائيًا؟ لا يمكن التراجع.'))return;
+          act(ev.target,st,'DELETE',null,'تم حذف '+st.name+' نهائيًا');
+        }));
+        list.appendChild(row);
+      });
+    });
+  }
+  function btn(t,bc,bg,fg,fn){
+    var b=document.createElement('button');
+    b.textContent=t;
+    b.style.cssText='padding:6px 12px;border-radius:9px;border:1px solid '+bc+';background:'+bg+';color:'+fg+';cursor:pointer;font-family:inherit;font-size:12px';
+    b.onclick=fn;
+    return b;
+  }
+  function msg(card,t){var m=card.querySelector('#ndz-msg');if(m)m.textContent=t}
+  function act(el,st,method,body,okText){
+    var card=document.getElementById('ndz');
+    msg(card,'...');
+    fetch(URL_+'/rest/v1/stores?id=eq.'+st.id,{method:method,headers:hdrs(),body:body?JSON.stringify(body):null})
+      .then(function(r){
+        if(r.ok||r.status===204){msg(card,okText);setTimeout(function(){render(card)},800)}
+        else r.text().then(function(){msg(card,'فشل ('+r.status+') — الصلاحيات قد تمنع العملية')});
+      })
+      .catch(function(){msg(card,'فشل الاتصال')});
   }
   function mount(){
     if(document.getElementById('ndz'))return;
@@ -50,39 +78,10 @@
     card.id='ndz';
     card.style.cssText='margin-top:18px;padding:16px;border:1px solid #fecaca;background:#fff5f5;border-radius:14px';
     card.innerHTML='<h3 style="margin:0 0 6px;color:#b91c1c;font-size:15px">منطقة الخطر</h3>'
-      +'<p style="margin:0 0 10px;color:#7f1d1d;font-size:12px">إلغاء النشر يخفي متجرك عن الزوار فورًا. الحذف النهائي يزيل المتجر ومنتجاته ولا يمكن التراجع عنه.</p>'
-      +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
-      +'<button id="ndz-unpub" style="padding:8px 14px;border-radius:10px;border:1px solid #f59e0b;background:#fffbeb;color:#92400e;cursor:pointer;font-family:inherit">إلغاء نشر المتجر</button>'
-      +'<button id="ndz-del" style="padding:8px 14px;border-radius:10px;border:1px solid #ef4444;background:#fef2f2;color:#b91c1c;cursor:pointer;font-family:inherit">حذف المتجر نهائيًا</button>'
-      +'</div><div id="ndz-msg" style="margin-top:8px;font-size:12px;color:#7f1d1d"></div>';
+      +'<p style="margin:0 0 10px;color:#7f1d1d;font-size:12px">إلغاء النشر يخفي المتجر عن الزوار فورًا. الحذف النهائي لا يمكن التراجع عنه.</p>'
+      +'<div id="ndz-list"></div><div id="ndz-msg" style="margin-top:8px;font-size:12px;color:#7f1d1d"></div>';
     host.parentNode.insertBefore(card,host.nextSibling);
-    var msg=function(t){document.getElementById('ndz-msg').textContent=t};
-    document.getElementById('ndz-unpub').onclick=function(){
-      msg('...');
-      findStore(function(err,st){
-        if(err||!st)return msg('تعذر تحديد المتجر');
-        fetch(URL_+'/rest/v1/stores?id=eq.'+st.id,{method:'PATCH',headers:hdrs(),body:JSON.stringify({published:false})})
-          .then(function(r){
-            if(r.ok||r.status===204){msg('تم إلغاء النشر: '+st.name+' — أعد تحميل الصفحة');setTimeout(function(){location.reload()},1200)}
-            else r.text().then(function(t){msg('فشل إلغاء النشر ('+r.status+')')});
-          })
-          .catch(function(){msg('فشل الاتصال')});
-      });
-    };
-    document.getElementById('ndz-del').onclick=function(){
-      findStore(function(err,st){
-        if(err||!st)return msg('تعذر تحديد المتجر');
-        if(!confirm('حذف "'+st.name+'" نهائيًا؟ لا يمكن التراجع.'))return;
-        msg('...');
-        fetch(URL_+'/rest/v1/stores?id=eq.'+st.id,{method:'DELETE',headers:hdrs()})
-          .then(function(r){
-            if(r.ok||r.status===204){msg('تم حذف المتجر نهائيًا — أعد تحميل الصفحة');setTimeout(function(){location.reload()},1200)}
-            else r.text().then(function(t){msg('فشل الحذف ('+r.status+'): الصلاحيات قد تمنع الحذف — جرّب إلغاء النشر')});
-          })
-          .catch(function(){msg('فشل الاتصال')});
-      });
-    };
+    render(card);
   }
-  var t=0;
   setInterval(function(){mount()},1500);
 })();
